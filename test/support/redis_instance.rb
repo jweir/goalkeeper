@@ -36,6 +36,12 @@ class RedisInstance
       @pid = nil
     end
 
+    def client
+      Redis.new(
+        hostname: '127.0.0.1', port: port, thread_safe: true
+      )
+    end
+
     private
 
     def post_boot_waiting_and_such
@@ -69,12 +75,6 @@ class RedisInstance
 
     def ensure_pid_directory
       FileUtils.mkdir_p(File.dirname(pid_file))
-    end
-
-    def client
-      Redis.new(
-        hostname: '127.0.0.1', port: port, thread_safe: true
-      )
     end
 
     def start_redis_server

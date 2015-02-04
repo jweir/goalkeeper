@@ -29,6 +29,10 @@ require 'time' # for Time.parse
 # Each record has a default expiration of 24 hours, but this can be modified.
 #   Goalkeeper.expiration = number_of_seconds
 #
+# Redis keys are stored under the default namespace of "Goalkeeper:". The namespace can be configured:
+#
+#   Goalkeeper.namespace = string
+#
 class Goalkeeper
 
   # Set the Redis client to a non default setting
@@ -54,6 +58,14 @@ class Goalkeeper
   # Overwrite the default expiration
   def self.expiration=(number_of_seconds)
     @expiration = number_of_seconds
+  end
+
+  def self.namespace
+    @namespace ||= "Goalkeeper"
+  end
+
+  def self.namespace=(ns)
+    @namespace = ns
   end
 
   # List is a collection of Goals to simplify tracking multiple goals.
@@ -155,7 +167,7 @@ class Goalkeeper
 
     # a namespaced key for the goal
     def key
-      "Goalkeeper:#{label}"
+      "#{Goalkeeper.namespace}:#{label}"
     end
 
     protected
