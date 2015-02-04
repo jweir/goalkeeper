@@ -4,6 +4,14 @@ require 'redis'
 
 class Goalkeeper
 
+  def self.redis=(redis)
+    @redis = redis
+  end
+
+  def self.redis
+    @redis ||= Redis.new
+  end
+
   # Creates a persistent Goal market with the given label.
   def self.met!(label)
     Goal.new(label).met!
@@ -11,7 +19,7 @@ class Goalkeeper
 
   class List
     extend Forwardable
-    def_delegators :@list, :size, :[]
+    def_delegators :@list, :size, :[], :each, :map
 
     def initialize
       @list = []
@@ -24,6 +32,7 @@ class Goalkeeper
       self
     end
 
+    # met? returns true if all Goals in the set have been met.
     def met?
       unmet.empty?
     end
@@ -38,61 +47,55 @@ class Goalkeeper
   end
 
   class Goal
+    EXPIRATION = 60 * 60 * 24 # 1 day
+
     attr_reader :label
+
+    # An optional object refrence which allows an application author to
+    # associate this goal to an object. The +ref+ is not used by Goalkeeper.
     attr_reader :ref
+
+    # the TTL value for the Redis record.  Defalts to EXPIRATION
+    attr_reader :expiration
 
     # +label+ is a unique string to identify this demand.
     # There is no checking if it is truly unique.
     #
     # +ref+ is an optional reference to any object.  This
     # would be used by the end user's application.
-    def initialize(label, ref: nil)
+    def initialize(label, ref: nil, expiration: EXPIRATION)
       @label = label
       @ref = ref
+      @expiration = expiration
     end
 
     def met!
-      Store.write(self.label)
+      Store.write(self)
       self
     end
 
     def met?
-      ! Store.read(self.label).nil?
+      ! Store.read(self).nil?
+    end
+
+    # a namespaced key for the goal
+    def key
+      "Goalkeeper:#{label}"
     end
   end
 
   class Store
-    EXPIRATION = 60 * 60 * 24 # 1 day
-
-    def self.write(label)
-      nl = ns(label)
-      client.set nl, Time.now
-      client.expire nl, EXPIRATION
+    def self.write(goal)
+      Goalkeeper.redis.set goal.key, Time.now
+      Goalkeeper.redis.expire goal.key, goal.expiration
     end
 
-    def self.read(label)
-      nl = ns(label)
-      client.get nl
+    def self.read(goal)
+      Goalkeeper.redis.get goal.key
     end
 
-    def self.remove(label)
-      nl = ns(label)
-      client.del nl
+    def self.remove(goal)
+      Goalkeeper.redis.del goal.key 
     end
-
-    protected
-
-    def self.ns(label)
-      namespace + ":"+ label
-    end
-
-    def self.namespace
-      "Goalkeeper"
-    end
-
-    def self.client
-      @client ||= Redis.new
-    end
-
   end
 end
