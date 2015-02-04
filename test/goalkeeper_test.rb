@@ -22,6 +22,16 @@ describe Goalkeeper do
     Goalkeeper.redis.flushdb
   end
 
+  describe "::redis" do
+    it "returns the Redis client"
+    it "can be user defined"
+  end
+
+  describe "::namespace" do
+    it "defaults to Goalkeeper"
+    it "can be user defined"
+  end
+
   describe Goalkeeper::List do
     before do
       @goals = Goalkeeper::List.new
@@ -111,7 +121,7 @@ describe Goalkeeper do
       end
     end
 
-    describe "met!" do
+    describe "#met!" do
       it "creates a Redis record" do
         assert Goalkeeper.redis.get(@goal.key).nil?
         @goal.met!
@@ -124,7 +134,7 @@ describe Goalkeeper do
       end
     end
 
-    describe "expiration" do
+    describe "#expiration" do
       it "has a default of 24 hours" do
         assert_equal 24 * 60 * 60, @goal.expiration
       end
@@ -133,13 +143,6 @@ describe Goalkeeper do
         g = Goalkeeper::Goal.new("x", expiration: 60)
         assert_equal 60, g.expiration
       end
-
-    end
-  end
-
-  describe "configuation" do
-    # allow setting the redis client
-    describe "namespace" do
     end
   end
 end
