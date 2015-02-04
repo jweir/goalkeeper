@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["John Weir"]
   spec.email         = ["john@smokinggun.com"]
   spec.summary       = %q{A Todo App for your application.}
-  spec.description   = %q{Goalkeeper is a system for validation that specific goals have been met by an application.}
-  spec.homepage      = ""
+  spec.description   = %q{Goalkeeper is a system for verifing if specific goals have been met by an application.}
+  spec.homepage      = "https://github.com/jweir/goalkeeper"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
