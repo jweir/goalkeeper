@@ -18,6 +18,9 @@ require 'test_helper'
 # was a Goal met?
 # when was it met?
 describe Goalkeeper do
+  before do
+    Goalkeeper.redis.flushdb
+  end
 
   describe Goalkeeper::List do
     before do
@@ -25,7 +28,7 @@ describe Goalkeeper do
     end
 
     describe "#add" do
-      it "create a Goal" do
+      it "creates a Goal" do
         @goals.add("a:1")
         assert_equal 1, @goals.size
         assert_equal "a:1", @goals[0].label
@@ -42,61 +45,101 @@ describe Goalkeeper do
       end
     end
 
-    describe "#met" do
-      it "returns all Goals which have been met"
-    end
+    describe "with goals" do
+      before do
+        @goals.add("x").add("y")
+      end
 
-    describe "#unmet" do
-      it "returns all Goals which have not been met"
-    end
+      describe "#met" do
+        it "returns all Goals which have been met" do
+          assert @goals.met.empty?
+          @goals[0].met!
+          assert_equal ["x"], @goals.met.map(&:label)
+          @goals[1].met!
+          assert_equal ["x","y"], @goals.met.map(&:label)
+        end
+      end
 
-    describe "#met?" do
-      it "is true when all Goals have been met"
+      describe "#unmet" do
+        it "returns all Goals which have not been met" do
+          assert_equal ["x","y"], @goals.unmet.map(&:label)
+          @goals[0].met!
+          assert_equal ["y"], @goals.unmet.map(&:label)
+          @goals[1].met!
+          assert @goals.unmet.empty?
+        end
+      end
+
+      describe "#met?" do
+        it "is true when all Goals have been met" do
+          assert ! @goals.met?
+          @goals.each(&:met!)
+          assert @goals.met?
+        end
+      end
     end
   end
 
-  describe "met!" do
-    it "should create a Goal for the given label" do
-      assert Goalkeeper.met!("x:1")
+  describe Goalkeeper::Goal do
+    before do
+      @goal = Goalkeeper::Goal.new("b")
     end
 
-    it "has a default ttl expiration"
-    it "takes an optional at: timestamp" 
-    it "takes an optional ttl for expiration" 
-  end
+    it "has a label" do
+      assert_equal "b", @goal.label
+    end
 
-  describe "namespace" do
+    it "has a namespaced key" do
+      assert_equal "Goalkeeper:b", @goal.key
+    end
+
+    it "is met? if the label has a Redis record" do
+      assert ! @goal.met?
+      Goalkeeper.redis.set @goal.key, Time.now
+      assert @goal.met?
+    end
+
+    describe "met_at" do
+      it "is nil if the Goal is not met" do
+        assert_equal nil, @goal.met_at
+      end
+
+      it "is the timestamp that the Goal was met" do
+        @t = Time.parse(Time.now.to_s)
+        @goal.met!
+        assert_equal @t, @goal.met_at
+      end
+    end
+
+    describe "met!" do
+      it "creates a Redis record" do
+        assert Goalkeeper.redis.get(@goal.key).nil?
+        @goal.met!
+        assert ! Goalkeeper.redis.get(@goal.key).nil?
+      end
+
+      it "has a default ttl expiration" do
+        @goal.met!
+        assert_equal @goal.expiration, Goalkeeper.redis.ttl(@goal.key) 
+      end
+    end
+
+    describe "expiration" do
+      it "has a default of 24 hours" do
+        assert_equal 24 * 60 * 60, @goal.expiration
+      end
+
+      it "can be set at initialization" do
+        g = Goalkeeper::Goal.new("x", expiration: 60)
+        assert_equal 60, g.expiration
+      end
+
+    end
   end
 
   describe "configuation" do
     # allow setting the redis client
+    describe "namespace" do
+    end
   end
 end
-
-describe "Integration" do
-  before do
-    puts "fix this!"
-    Redis.new.flushdb
-  end
-
-  it "works like this" do
-    Goalkeeper.met! "x"
-
-    d = Goalkeeper::List
-      .new
-      .add("x")
-      .add("y")
-
-    assert_equal false, d.met?
-
-    assert_equal ["y"], d.unmet.map(&:label)
-    assert_equal ["x"], d.met.map(&:label)
-
-    Goalkeeper.met! "y"
-
-    assert_equal true, d.met?
-
-    assert_equal ["x","y"], d.met.map(&:label)
-  end
-end
-
