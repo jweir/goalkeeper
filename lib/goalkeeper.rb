@@ -111,6 +111,7 @@ class Goalkeeper
   end
 
   class Goal
+    # The unique label to identify this Goal
     attr_reader :label
 
     # An optional object refrence which allows an application author to
@@ -134,19 +135,19 @@ class Goalkeeper
     end
 
     def met!
-      Store.write(self)
+      write
       self
     end
 
     def met?
-      ! Store.read(self).nil?
+      ! read.nil?
     end
 
     # Time the goal was completed.
     # WARNING retuns nil if the job is not met
     def met_at
       if met?
-        Time.parse(Store.read(self))
+        Time.parse(read)
       else
         nil
       end
@@ -156,20 +157,16 @@ class Goalkeeper
     def key
       "Goalkeeper:#{label}"
     end
-  end
 
-  class Store
-    def self.write(goal)
-      Goalkeeper.redis.set goal.key, Time.now
-      Goalkeeper.redis.expire goal.key, goal.expiration
+    protected
+
+    def write
+      Goalkeeper.redis.set(self.key, Time.now)
+      Goalkeeper.redis.expire(self.key, self.expiration)
     end
 
-    def self.read(goal)
-      Goalkeeper.redis.get goal.key
-    end
-
-    def self.remove(goal)
-      Goalkeeper.redis.del goal.key
+    def read
+      Goalkeeper.redis.get self.key
     end
   end
 end
