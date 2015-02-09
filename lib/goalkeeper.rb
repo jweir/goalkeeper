@@ -117,6 +117,20 @@ class Goalkeeper
     def met
       self.select {|g| g.met?}
     end
+
+    def <<(other)
+      if other.is_a?(Goal)
+        super unless include?(other)
+      else
+        false
+      end
+    end
+
+    def push(*others)
+      others.each do |o|
+        self << o
+      end
+    end
   end
 
   class Goal
