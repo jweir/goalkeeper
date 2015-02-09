@@ -35,10 +35,15 @@ describe Goalkeeper do
     end
 
     describe "#add" do
-      it "creates a Goal" do
+      it "creates a Goal from the label" do
         @goals.add("a:1")
         assert_equal 1, @goals.size
         assert_equal "a:1", @goals[0].label
+      end
+
+      it "accepts an option expiration" do
+        @goals.add("a:1", expiration: 20)
+        assert_equal 20, @goals.first.expiration
       end
 
       it "should return itself (so it is chainable)" do

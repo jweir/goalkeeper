@@ -99,9 +99,9 @@ class Goalkeeper
     end
 
     # Creates a new Goal.
-    # see Goal#new for usage
-    def add(label)
-      self.push(Goal.new(label))
+    # see Goal#initialize for usage
+    def add(*args)
+      self.push(Goal.new(*args))
       self
     end
 
