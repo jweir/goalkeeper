@@ -51,6 +51,21 @@ describe Goalkeeper do
       end
     end
 
+    it "behaves as a unique set" do
+      @goals << Goalkeeper::Goal.new("a")
+      @goals << Goalkeeper::Goal.new("b")
+      @goals << Goalkeeper::Goal.new("a")
+      @goals.push Goalkeeper::Goal.new("a")
+
+      assert_equal 2, @goals.size
+    end
+
+    it "ignores insertion of nonGoals" do
+      @goals << "a"
+      @goals.push 1, 2, :a
+      assert_equal 0, @goals.size
+    end
+
     describe "with goals" do
       before do
         @goals.add("x").add("y")
