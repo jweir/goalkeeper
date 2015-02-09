@@ -93,18 +93,15 @@ class Goalkeeper
   # Iterate all Goals
   #   myslist.each {|goal| ...}
   #   myslist.map  {|goal| ...}
-  class List
-    extend Forwardable
-    def_delegators :@list, :size, :[], :each, :map
-
+  class List < Array
     def initialize
-      @list = []
+      super
     end
 
     # Creates a new Goal.
     # see Goal#new for usage
     def add(label, ref: nil)
-      @list.push(Goal.new(label, ref: ref))
+      self.push(Goal.new(label, ref: ref))
       self
     end
 
@@ -114,11 +111,11 @@ class Goalkeeper
     end
 
     def unmet
-      @list.select {|g| ! g.met?}
+      self.select {|g| ! g.met?}
     end
 
     def met
-      @list.select {|g| g.met?}
+      self.select {|g| g.met?}
     end
   end
 
