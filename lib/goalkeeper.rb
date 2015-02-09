@@ -100,8 +100,8 @@ class Goalkeeper
 
     # Creates a new Goal.
     # see Goal#new for usage
-    def add(label, ref: nil)
-      self.push(Goal.new(label, ref: ref))
+    def add(label)
+      self.push(Goal.new(label))
       self
     end
 
@@ -123,23 +123,15 @@ class Goalkeeper
     # The unique label to identify this Goal
     attr_reader :label
 
-    # An optional object refrence which allows an application author to
-    # associate this goal to an object. The +ref+ is not used by Goalkeeper.
-    attr_reader :ref
-
     # the TTL value for the Redis record.  Defalts to Goalkeeper.expiration
     attr_reader :expiration
 
     # +label+ is a unique string to identify this Goal.
     # There is no checking if it is truly unique.
     #
-    # +ref+ is an optional reference to any object.  This
-    # would be used by the end user's application.
-    #
     # +expiration+ can be set to override the gobal expiratin.
-    def initialize(label, ref: nil, expiration: Goalkeeper.expiration)
+    def initialize(label, expiration: Goalkeeper.expiration)
       @label = label
-      @ref = ref
       @expiration = expiration
     end
 
