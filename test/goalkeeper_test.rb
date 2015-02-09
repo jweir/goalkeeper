@@ -41,12 +41,6 @@ describe Goalkeeper do
         assert_equal "a:1", @goals[0].label
       end
 
-      it "accepts an optional reference object" do
-        o = Object.new
-        @goals.add("a:1", ref: o)
-        assert_equal o, @goals[0].ref
-      end
-
       it "should return itself (so it is chainable)" do
         assert_equal @goals, @goals.add("a:1")
       end
