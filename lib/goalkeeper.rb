@@ -68,10 +68,10 @@ class Goalkeeper
     @namespace = ns
   end
 
-  # List is a collection of Goals to simplify tracking multiple goals.
+  # Set is a collection of Goals to simplify tracking multiple goals.
   #
   # Create a new list
-  #   mylist = Goalkeeper::List.new
+  #   mylist = Goalkeeper::Set.new
   #
   # Add Goals you want to check for completion
   #   mylist.add("job1").add("job2")
@@ -93,7 +93,7 @@ class Goalkeeper
   # Iterate all Goals
   #   myslist.each {|goal| ...}
   #   myslist.map  {|goal| ...}
-  class List < Array
+  class Set < Array
     def initialize
       super
     end

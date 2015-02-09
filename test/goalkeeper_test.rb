@@ -29,9 +29,9 @@ describe Goalkeeper do
     end
   end
 
-  describe Goalkeeper::List do
+  describe Goalkeeper::Set do
     before do
-      @goals = Goalkeeper::List.new
+      @goals = Goalkeeper::Set.new
     end
 
     describe "#add" do
