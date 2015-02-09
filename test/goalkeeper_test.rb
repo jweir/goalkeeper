@@ -163,6 +163,16 @@ describe Goalkeeper do
         a2 = Goalkeeper::Goal.new("a")
 
         assert_equal a, a2
+        assert a != b
+      end
+    end
+
+    describe "#ttl" do
+      it "returns the ttl on the Redis record" do
+        a = Goalkeeper::Goal.new("a")
+        assert_equal(-2, a.ttl)
+        a.met!
+        assert_equal Goalkeeper.expiration, a.ttl
       end
     end
   end
