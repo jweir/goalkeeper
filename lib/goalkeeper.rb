@@ -170,6 +170,11 @@ class Goalkeeper
       "#{Goalkeeper.namespace}:#{label}"
     end
 
+    # All Goalkeeper::Goals with the same label are equal
+    def ==(other)
+      other.is_a?(Goalkeeper::Goal) && other.label == label
+    end
+
     protected
 
     def write

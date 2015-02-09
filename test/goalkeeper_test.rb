@@ -141,5 +141,15 @@ describe Goalkeeper do
         assert_equal 60, g.expiration
       end
     end
+
+    describe "equality" do
+      it "should be true when the labels are the same" do
+        a = Goalkeeper::Goal.new("a")
+        b = Goalkeeper::Goal.new("b")
+        a2 = Goalkeeper::Goal.new("a")
+
+        assert_equal a, a2
+      end
+    end
   end
 end
