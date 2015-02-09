@@ -173,6 +173,11 @@ class Goalkeeper
       "#{Goalkeeper.namespace}:#{label}"
     end
 
+    # ttl returns the time to live on the redis key
+    def ttl
+      Goalkeeper.redis.ttl self.key
+    end
+
     # All Goalkeeper::Goals with the same label are equal
     def ==(other)
       other.is_a?(Goalkeeper::Goal) && other.label == label
