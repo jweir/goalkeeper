@@ -52,6 +52,15 @@ describe Goalkeeper::Goal do
     end
   end
 
+  describe "#clear!" do
+    it "removes the met state of the Goal" do
+      goal.met!
+      assert_equal true, goal.met?
+      goal.clear!
+      assert_equal false, goal.met?
+    end
+  end
+
   describe "#expiration" do
     it "has a default of 24 hours" do
       assert_equal 24 * 60 * 60, goal.expiration
