@@ -1,4 +1,3 @@
-require "goalkeeper/version"
 require 'forwardable'
 require 'redis'
 require 'time' # for Time.parse
@@ -33,7 +32,10 @@ require 'time' # for Time.parse
 #
 #   Goalkeeper.namespace = string
 #
-class Goalkeeper
+module Goalkeeper
+  require "goalkeeper/version"
+  require "goalkeeper/goal"
+  require "goalkeeper/set"
 
   # Set the Redis client to a non default setting
   def self.redis=(redis)
@@ -68,130 +70,4 @@ class Goalkeeper
     @namespace = ns
   end
 
-  # Set is a collection of Goals to simplify tracking multiple goals.
-  #
-  # Create a new list
-  #   mylist = Goalkeeper::Set.new
-  #
-  # Add Goals you want to check for completion
-  #   mylist.add("job1").add("job2")
-  #   mylist.size
-  #   #=> 2
-  #
-  # Check if all the goals are completed
-  #   mylist.met?
-  #   #=> false
-  #
-  # Get the unmet Goals
-  #   mylist.unmet
-  #   #=> [...]
-  #
-  # Get the met Goals
-  #   mylist.met
-  #   #=> [...]
-  #
-  # Iterate all Goals
-  #   myslist.each {|goal| ...}
-  #   myslist.map  {|goal| ...}
-  class Set < Array
-    def initialize
-      super
-    end
-
-    # Creates a new Goal.
-    # see Goal#initialize for usage
-    def add(*args)
-      self.push(Goal.new(*args))
-      self
-    end
-
-    # met? returns true if all Goals in the set have been met.
-    def met?
-      unmet.empty?
-    end
-
-    def unmet
-      self.select {|g| ! g.met?}
-    end
-
-    def met
-      self.select {|g| g.met?}
-    end
-
-    def <<(other)
-      if other.is_a?(Goal)
-        super unless include?(other)
-      else
-        false
-      end
-    end
-
-    def push(*others)
-      others.each do |o|
-        self << o
-      end
-    end
-  end
-
-  class Goal
-    # The unique label to identify this Goal
-    attr_reader :label
-
-    # the TTL value for the Redis record.  Defalts to Goalkeeper.expiration
-    attr_reader :expiration
-
-    # +label+ is a unique string to identify this Goal.
-    # There is no checking if it is truly unique.
-    #
-    # +expiration+ can be set to override the gobal expiratin.
-    def initialize(label, expiration: Goalkeeper.expiration)
-      @label = label
-      @expiration = expiration
-    end
-
-    def met!
-      write
-      self
-    end
-
-    def met?
-      ! read.nil?
-    end
-
-    # Time the goal was completed.
-    # WARNING retuns nil if the job is not met
-    def met_at
-      if met?
-        Time.parse(read)
-      else
-        nil
-      end
-    end
-
-    # a namespaced key for the goal
-    def key
-      "#{Goalkeeper.namespace}:#{label}"
-    end
-
-    # ttl returns the time to live on the redis key
-    def ttl
-      Goalkeeper.redis.ttl self.key
-    end
-
-    # All Goalkeeper::Goals with the same label are equal
-    def ==(other)
-      other.is_a?(Goalkeeper::Goal) && other.label == label
-    end
-
-    protected
-
-    def write
-      Goalkeeper.redis.set(self.key, Time.now)
-      Goalkeeper.redis.expire(self.key, self.expiration)
-    end
-
-    def read
-      Goalkeeper.redis.get self.key
-    end
-  end
 end
