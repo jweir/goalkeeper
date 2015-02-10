@@ -51,6 +51,8 @@ describe Goalkeeper::Set do
         assert_equal ["x"], goals.met.map(&:label)
         goals[1].met!
         assert_equal(%w( x y ), goals.met.map(&:label))
+
+        assert goals.met.is_a?(Goalkeeper::Set)
       end
     end
 
@@ -61,6 +63,8 @@ describe Goalkeeper::Set do
         assert_equal ["y"], goals.unmet.map(&:label)
         goals[1].met!
         assert goals.unmet.empty?
+
+        assert goals.unmet.is_a?(Goalkeeper::Set)
       end
     end
 
@@ -70,6 +74,15 @@ describe Goalkeeper::Set do
         goals.each(&:met!)
         assert goals.met?
       end
+    end
+
+    describe "#met_at" do
+      it "is nil unless all Goals are met"
+      it "is the most recent met_at from the Goals"
+    end
+
+    describe "#clear!" do
+      it "calls clear on Goals"
     end
   end
 end

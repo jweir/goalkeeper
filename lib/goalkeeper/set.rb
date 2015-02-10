@@ -41,17 +41,19 @@ module Goalkeeper
       unmet.empty?
     end
 
+    # unmet returns a Set with the all the Goals that have not been met.
     def unmet
-      select { |g| !g.met? }
+      subset(select { |g| !g.met? })
     end
 
+    # met returns a Set with the all the Goals that have been met.
     def met
-      select(&:met?)
+      subset(select { |g| g.met? })
     end
 
     def <<(other)
-      if other.is_a?(Goal)
-        super unless include?(other)
+      if other.is_a?(Goal) && !include?(other)
+        super 
       else
         false
       end
@@ -60,6 +62,14 @@ module Goalkeeper
     def push(*others)
       others.each do |o|
         self << o
+      end
+    end
+
+    protected
+
+    def subset(set)
+      Goalkeeper::Set.new.tap do |s|
+        set.each {|i| s << i}
       end
     end
   end
