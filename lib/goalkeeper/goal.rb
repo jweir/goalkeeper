@@ -31,6 +31,11 @@ module Goalkeeper
       nil
     end
 
+    # clear! removes the met state of the Goal.
+    def clear!
+      Goalkeeper.redis.del(key)
+    end
+
     # a namespaced key for the goal
     def key
       "#{Goalkeeper.namespace}:#{label}"
