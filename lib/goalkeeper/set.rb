@@ -32,7 +32,7 @@ module Goalkeeper
     # Creates a new Goal.
     # see Goal#initialize for usage
     def add(*args)
-      self.push(Goal.new(*args))
+      push(Goal.new(*args))
       self
     end
 
@@ -42,11 +42,11 @@ module Goalkeeper
     end
 
     def unmet
-      self.select {|g| ! g.met?}
+      select { |g| !g.met? }
     end
 
     def met
-      self.select {|g| g.met?}
+      select(&:met?)
     end
 
     def <<(other)

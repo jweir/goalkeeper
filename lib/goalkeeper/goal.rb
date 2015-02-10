@@ -21,17 +21,14 @@ module Goalkeeper
     end
 
     def met?
-      ! read.nil?
+      !read.nil?
     end
 
     # Time the goal was completed.
     # WARNING retuns nil if the job is not met
     def met_at
-      if met?
-        Time.parse(read)
-      else
-        nil
-      end
+      return Time.parse(read) if met?
+      nil
     end
 
     # a namespaced key for the goal
@@ -41,7 +38,7 @@ module Goalkeeper
 
     # ttl returns the time to live on the redis key
     def ttl
-      Goalkeeper.redis.ttl self.key
+      Goalkeeper.redis.ttl(key)
     end
 
     # All Goalkeeper::Goals with the same label are equal
@@ -52,12 +49,12 @@ module Goalkeeper
     protected
 
     def write
-      Goalkeeper.redis.set(self.key, Time.now)
-      Goalkeeper.redis.expire(self.key, self.expiration)
+      Goalkeeper.redis.set(key, Time.now)
+      Goalkeeper.redis.expire(key, expiration)
     end
 
     def read
-      Goalkeeper.redis.get self.key
+      Goalkeeper.redis.get(key)
     end
   end
 end

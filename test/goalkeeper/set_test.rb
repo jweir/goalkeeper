@@ -50,13 +50,13 @@ describe Goalkeeper::Set do
         goals[0].met!
         assert_equal ["x"], goals.met.map(&:label)
         goals[1].met!
-        assert_equal ["x","y"], goals.met.map(&:label)
+        assert_equal(%w( x y ), goals.met.map(&:label))
       end
     end
 
     describe "#unmet" do
       it "returns all Goals which have not been met" do
-        assert_equal ["x","y"], goals.unmet.map(&:label)
+        assert_equal(%w( x y ), goals.unmet.map(&:label))
         goals[0].met!
         assert_equal ["y"], goals.unmet.map(&:label)
         goals[1].met!
@@ -66,11 +66,10 @@ describe Goalkeeper::Set do
 
     describe "#met?" do
       it "is true when all Goals have been met" do
-        assert ! goals.met?
+        assert !goals.met?
         goals.each(&:met!)
         assert goals.met?
       end
     end
   end
 end
-
