@@ -16,7 +16,7 @@ describe Goalkeeper::Goal do
   end
 
   it "is met? if the label has a Redis record" do
-    assert ! goal.met?
+    assert !goal.met?
     Goalkeeper.redis.set goal.key, Time.now
     assert goal.met?
   end
@@ -44,11 +44,11 @@ describe Goalkeeper::Goal do
 
     it "has a default ttl expiration" do
       goal.met!
-      assert_equal goal.expiration, Goalkeeper.redis.ttl(goal.key) 
+      assert_equal goal.expiration, Goalkeeper.redis.ttl(goal.key)
     end
 
     it "does nothing if the goal is already met" do
-
+      flunk
     end
   end
 

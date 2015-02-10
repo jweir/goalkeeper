@@ -2,7 +2,8 @@ require 'forwardable'
 require 'redis'
 require 'time' # for Time.parse
 
-# Goalkeeper provides methods to track if specific events(Goals) have been completed(met).
+# Goalkeeper provides methods to track if specific events(Goals) have been
+# completed(met).
 #
 # It is not a complicated system and it is easy enough to roll your own.  This
 # is an extraction from a system Pharos EI has been using.
@@ -13,8 +14,8 @@ require 'time' # for Time.parse
 # For example you might have your Goals labeled by date and company id:
 #   "job:2016-01-17:company:7"
 #
-# When a Goal is met a record is created in Redis with a timestamp, this is the only
-# persistent layer.
+# When a Goal is met a record is created in Redis with a timestamp, this is the
+# only persistent layer.
 #   Goalkeeper.met!("jobkey")
 #   # or
 #   Goalkeeper::Goal.new("jobkey").met!
@@ -28,7 +29,8 @@ require 'time' # for Time.parse
 # Each record has a default expiration of 24 hours, but this can be modified.
 #   Goalkeeper.expiration = number_of_seconds
 #
-# Redis keys are stored under the default namespace of "Goalkeeper:". The namespace can be configured:
+# Redis keys are stored under the default namespace of "Goalkeeper:". The
+# namespace can be configured:
 #
 #   Goalkeeper.namespace = string
 #
@@ -69,5 +71,4 @@ module Goalkeeper
   def self.namespace=(ns)
     @namespace = ns
   end
-
 end
