@@ -48,7 +48,16 @@ describe Goalkeeper::Goal do
     end
 
     it "does nothing if the goal is already met" do
-      flunk
+      t = Time.now
+      Time.stub(:now, t) do
+        goal.met!
+        assert_equal Time.parse(t.to_s), goal.met_at
+      end
+
+      Time.stub(:now, t + 1000) do
+        goal.met!
+        assert_equal Time.parse(t.to_s), goal.met_at
+      end
     end
   end
 

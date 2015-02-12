@@ -1,22 +1,23 @@
 module Goalkeeper
+  # Goal represents a label which has either been +met+ or not.
+  # 
   class Goal
-    # The unique label to identify this Goal
+    # The unique label to identify this Goal. There is no logic to check that the
+    # label is unique.
     attr_reader :label
 
     # the TTL value for the Redis record.  Defalts to Goalkeeper.expiration
     attr_reader :expiration
 
     # +label+ is a unique string to identify this Goal.
-    # There is no checking if it is truly unique.
-    #
-    # +expiration+ can be set to override the gobal expiratin.
+    # +expiration+ number secconds. This can be set to override the gobal expiration.
     def initialize(label, expiration: Goalkeeper.expiration)
       @label = label
       @expiration = expiration
     end
 
     def met!
-      write
+      write unless met?
       self
     end
 

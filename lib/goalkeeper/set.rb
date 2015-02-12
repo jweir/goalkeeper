@@ -1,29 +1,30 @@
 module Goalkeeper
-  # Set is a collection of Goals to simplify tracking multiple goals.
+  # Set is an Array of Goals to simplify tracking multiple goals.
+  # Since Set is an array, you have all Array methods available.
   #
-  # Create a new list
-  #   mylist = Goalkeeper::Set.new
+  # Create a new set
+  #   myset = Goalkeeper::Set.new
   #
   # Add Goals you want to check for completion
-  #   mylist.add("job1").add("job2")
-  #   mylist.size
+  #   myset.add("job1").add("job2")
+  #   myset.size
   #   #=> 2
   #
   # Check if all the goals are completed
-  #   mylist.met?
+  #   myset.met?
   #   #=> false
   #
   # Get the unmet Goals
-  #   mylist.unmet
+  #   myset.unmet
   #   #=> [...]
   #
   # Get the met Goals
-  #   mylist.met
+  #   myset.met
   #   #=> [...]
   #
   # Iterate all Goals
-  #   myslist.each {|goal| ...}
-  #   myslist.map  {|goal| ...}
+  #   myset.each {|goal| ...}
+  #   myset.map  {|goal| ...}
   class Set < Array
     def initialize
       super
@@ -49,6 +50,16 @@ module Goalkeeper
     # met returns a Set with the all the Goals that have been met.
     def met
       subset(select { |g| g.met? })
+    end
+
+    # nil if this set is not met?
+    # otherwise returns the met_at Time for the last met goal
+    def met_at
+      if met?
+        self.map(&:met_at).sort.last
+      else
+        nil
+      end
     end
 
     def <<(other)

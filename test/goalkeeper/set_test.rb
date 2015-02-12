@@ -77,12 +77,28 @@ describe Goalkeeper::Set do
     end
 
     describe "#met_at" do
-      it "is nil unless all Goals are met"
-      it "is the most recent met_at from the Goals"
-    end
+      before do
+        goals << Goalkeeper::Goal.new("a")
+        goals << Goalkeeper::Goal.new("b")
+        goals << Goalkeeper::Goal.new("a")
+      end
 
-    describe "#clear!" do
-      it "calls clear on Goals"
+      it "is nil unless all Goals are met" do
+        goals[0].met!
+        goals[1].met!
+        assert_equal nil, goals.met_at
+      end
+
+      it "is the most recent met_at from the Goals" do
+        t = Time.now
+        Time.stub(:now, t + 1000) do
+          goals.first.met!
+        end
+        # meet the reset
+        goals.each &:met!
+
+        assert_equal((t + 1000).to_a, goals.met_at.to_a)
+      end
     end
   end
 end

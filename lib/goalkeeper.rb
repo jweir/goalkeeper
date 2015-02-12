@@ -5,23 +5,60 @@ require 'time' # for Time.parse
 # Goalkeeper provides methods to track if specific events(Goals) have been
 # completed(met).
 #
-# It is not a complicated system and it is easy enough to roll your own.  This
-# is an extraction from a system Pharos EI has been using.
+# Its goes likes this..
+#    
+# Lets ensure we wakeup New Years Day 2020.  The goal will be called 'wakeup:2020-01-01'
+#   g = Goalkeeper::Goal.new('wakeup:2020-01-01')
+#   g.met? #=> false
 #
-# A Goal is just a unique string. It is up to your application to
-# define any schema for the Goal's label.
+# Time flies... it is New Years Day 2020.
+#   g.met! # or Goalkeeper.met!('wakeup:2020-01-01')
+#   g.met? #=> true
+#   g.met_at #=> 2020-01-01 05:01:31 -0500
 #
-# For example you might have your Goals labeled by date and company id:
-#   "job:2016-01-17:company:7"
+# Now if our application checks our goal, it will be met.
+#   Goalkeeper::Goal.new('wakeup:2020-01-01').met? #=> true
+#   Goalkeeper.met?('wakeup:2020-01-01') #=> true
+#   
+# Note: Once a Goal is 'met' the 'met_at' timestamp will not change, unless
+# 'clear!' is called.
 #
-# When a Goal is met a record is created in Redis with a timestamp, this is the
-# only persistent layer.
-#   Goalkeeper.met!("jobkey")
-#   # or
-#   Goalkeeper::Goal.new("jobkey").met!
+# We are probably only interested in this goal being complete for a limited
+# time, so it will expire and be removed from Redis.
+#   g.ttl #=> 86400 (1 day)
 #
-# To check if a Goal as been met
-#   Goalkeeper::Goal.new("jobkey").met?
+# If you need to reference the Redis key
+#   g.key #=> Goalkeeper:wakeup:2020-01-01
+#
+# Finally clear the Goal is simple
+#   g.clear!
+#
+# === Sets
+#
+# Perhaps you have a series of Goals you want to track, and see if they all have been met, or not.
+#
+#   set = Goalkeeper::Set.new
+#   set.add('goal1').add('goal2')
+#   set.met? #=> false
+#
+# Lets have 1 goal met:
+#   Goalkeeper.met!('goal1')
+#
+# But our set is not met yet
+#   set.met? #=> false
+#
+# See which goals are met, or unmet
+#   set.met #=> [#<Goalkeeper::Goal @label="goal1">]
+#   set.unmet #=> [#<Goalkeeper::Goal @label="goal2">]
+#
+# Lets complete our set.
+#   Goalkeeper.met!('goal1')
+#   set.met? #=> true
+#
+# See the time the final goal was met
+#   set.met_at #=> 2015-01-01 08:02:15 -0500
+#
+# === Customization
 #
 # Customize the redis client by setting it in your application
 #   Goalkeeper.redis = your_redis_client
@@ -31,7 +68,6 @@ require 'time' # for Time.parse
 #
 # Redis keys are stored under the default namespace of "Goalkeeper:". The
 # namespace can be configured:
-#
 #   Goalkeeper.namespace = string
 #
 module Goalkeeper
@@ -51,6 +87,10 @@ module Goalkeeper
   # Creates a persistent Goal market with the given label.
   def self.met!(label)
     Goal.new(label).met!
+  end
+
+  def self.met?(label)
+    Goal.new(label).met?
   end
 
   # The TTL set for each met Goal record created in Redis
