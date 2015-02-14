@@ -1,58 +1,54 @@
 # Goalkeeper
 
-Goalkeeper is a simple system for tracking if unique label(Goal) has been met.  A Set of
-goals can be combined to check if all of them have been completed. Goalkeeper is backed by and requires Redis.
+Goalkeeper is a simple library for tracking if, and when, a Goal has
+been met.  A Set of goals can be combined to check if all of them
+have been completed.
 
-_No initialization of Goals is required.  Either is Goal exists in Redis and is
-met, or it does not exist and is unmet._
+This could be used as a checklist for process completion.
 
 ### Examples
 
-Check if each customer was sent a report today
+Check if your application ran its daily backup
 
 ```ruby
 # send the report and mark the report as sent
-def send_report(customer)
-  deliver
-  Goalkeeper.met!("report:#{customer.id}")
+def backup
+  # ... backup code ...
+  Goalkeeper.met!("backup:#{Date.today}")
 end
 
-# warn for any customer whose report has not been sent
-def check
-  Customers.all.map |customer|
-    warn(customer) unless Goalkeeper.met?("report:#{customer.id}")
-  end
+# elsewhere warn if any customer has not had a report sent
+def did_backup_today?
+  Goalkeeper.met?("backup:#{Date.today}")
 end
 ```
 
-Wait for a set of processes to be met before starting another.
+Wait for a Set of Goals to be met before starting another.
 ```ruby
-# We need to wait for the prices and award data to be downloaded
-def email_on_complete
+# The email can't be sent until the 'prices' and 'awards' are downloaded
+def email_report
   set = Goalkeeper::Set.new.
     add("prices:#{Date.today}").
     add("awards:#{Date.today}")
 
   if set.met?
-    log.info "Downloaded completed #{set.met_at}"
+    log.info "Downloads completed by #{set.met_at}"
     deliver
   else
-    log.info "These tasks are not complete #{set.unmet.map(&:label)}"
+    log.info "#{set.unmet.map(&:label).join(', ')} have not been downloaded"
     retry_later
   end
 end
 
 # elsewhere the code to get the data and mark it complete
 def download_prices
-  if fetch
-    Goalkeeper.met!('prices:#{Date.today}')
-  end
+  # ... download code ...
+  Goalkeeper.met!('prices:#{Date.today}')
 end
 
 def download_awards
-  if fetch
-    Goalkeeper.met!('awards:#{Date.today}')
-  end
+  # ... download code ...
+  Goalkeeper.met!('awards:#{Date.today}')
 end
 ```
 
@@ -83,7 +79,7 @@ Goalkeeper.met? "label" #=> false
 Goalkeeper.met! "label" #=> <Goalkeeper::Goal>
 Goalkeeper.met? "label" #=> true
 ```
-   
+
 But lets have a granular example.  Lets ensure we wakeup New Years Day 2020.
 The Goal will be named 'wakeup:2020-01-01'
 
@@ -107,7 +103,7 @@ Goalkeeper.met?('wakeup:2020-01-01') #=> true
 # or
 Goalkeeper::Goal.new('wakeup:2020-01-01').met? #=> true
 ```
-  
+
 Note: Once a Goal is 'met' the 'met\_at' timestamp will not change, unless
 'clear!' is called.
 
