@@ -11,6 +11,18 @@ describe Goalkeeper::Goal do
     assert_equal "test", goal.label
   end
 
+  describe "label" do
+    it "can be a string" do
+      g = Goalkeeper::Goal.new("a_string")
+      assert_equal 'a_string', g.label
+    end
+
+    it "will join multiple args into a string seperated by ':'" do
+      g = Goalkeeper::Goal.new("a", :b, Object)
+      assert_equal 'a:b:Object', g.label
+    end
+  end
+
   it "has a namespaced key" do
     assert_equal "Goalkeeper:test", goal.key
   end

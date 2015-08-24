@@ -9,10 +9,10 @@ module Goalkeeper
     # the TTL value for the Redis record.  Defalts to Goalkeeper.expiration
     attr_reader :expiration
 
-    # +label+ is a unique string to identify this Goal.
+    # +label+ is a unique string to identify this Goal. If multiple args are passed they are joined and seperated by ':'
     # +expiration+ number secconds. This can be set to override the gobal expiration.
-    def initialize(label, expiration: Goalkeeper.expiration)
-      @label = label
+    def initialize(*label, expiration: Goalkeeper.expiration)
+      @label = label.join(":")
       @expiration = expiration
     end
 
