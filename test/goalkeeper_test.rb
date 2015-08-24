@@ -28,4 +28,21 @@ describe Goalkeeper do
       Goalkeeper.namespace = ns
     end
   end
+
+  let(:goal) {  Goalkeeper::Goal.new('a:b') }
+
+  describe "::met!" do
+    it "creates a goal and flags it met" do
+      Goalkeeper.met!('a','b')
+      assert goal.met?
+    end
+  end
+
+  describe "::met?" do
+    it "creates a goal and checks if it is met" do
+      assert ! Goalkeeper.met?('a','b')
+      goal.met!
+      assert Goalkeeper.met?('a','b')
+    end
+  end
 end

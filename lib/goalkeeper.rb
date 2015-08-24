@@ -85,12 +85,12 @@ module Goalkeeper
   end
 
   # Creates a persistent Goal market with the given label.
-  def self.met!(label)
-    Goal.new(label).met!
+  def self.met!(*label)
+    Goal.new(*label).met!
   end
 
-  def self.met?(label)
-    Goal.new(label).met?
+  def self.met?(*label)
+    Goal.new(*label).met?
   end
 
   # The TTL set for each met Goal record created in Redis
