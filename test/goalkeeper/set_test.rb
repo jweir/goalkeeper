@@ -86,7 +86,7 @@ describe Goalkeeper::Set do
       it "is nil unless all Goals are met" do
         goals[0].met!
         goals[1].met!
-        assert_equal nil, goals.met_at
+        assert_nil goals.met_at
       end
 
       it "is the most recent met_at from the Goals" do
@@ -95,7 +95,7 @@ describe Goalkeeper::Set do
           goals.first.met!
         end
         # meet the reset
-        goals.each &:met!
+        goals.each(&:met!)
 
         assert_equal((t + 1000).to_a, goals.met_at.to_a)
       end

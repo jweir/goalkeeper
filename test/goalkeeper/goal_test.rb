@@ -35,7 +35,7 @@ describe Goalkeeper::Goal do
 
   describe "met_at" do
     it "is nil if the Goal is not met" do
-      assert_equal nil, goal.met_at
+      assert_nil goal.met_at
     end
 
     it "is the timestamp that the Goal was met" do
@@ -48,7 +48,7 @@ describe Goalkeeper::Goal do
   describe "#met!" do
     it "creates a timestamp record with the Goal's key" do
       Time.stub(:now, 'timestamp') do
-        assert_equal nil, Goalkeeper.redis.get(goal.key)
+        assert_nil Goalkeeper.redis.get(goal.key)
         goal.met!
         assert_equal 'timestamp', Goalkeeper.redis.get(goal.key)
       end

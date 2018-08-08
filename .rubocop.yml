@@ -1,0 +1,15 @@
+# This is the configuration used to check the rubocop source code.
+
+AllCops:
+  Exclude:
+    - 'test/support/redis_instance.rb'
+
+Style/StringLiterals:
+  Exclude:
+    - '**/*.*'
+    - '**/*'
+
+Style/StringLiteralsInInterpolation:
+  Exclude:
+    - '**/*.*'
+    - '**/*'
